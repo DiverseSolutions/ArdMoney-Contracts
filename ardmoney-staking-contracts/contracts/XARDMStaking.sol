@@ -14,11 +14,11 @@ contract XARDMStaking is Ownable {
     bool public withdrawPaused;
     bool public depositPaused;
 
-    event DepositPaused(address account,bool state);
-    event WithdrawPaused(address account,bool state);
+    event DepositPaused(bool state);
+    event WithdrawPaused(bool state);
 
-    event Deposit(uint amount,uint xAmount);
-    event Withdraw(uint amount,uint xAmount);
+    event Deposit(address user,uint amount,uint xAmount);
+    event Withdraw(address user,uint amount,uint xAmount);
 
     constructor(IERC20 _ARDM) {
         ARDM = _ARDM;
@@ -34,12 +34,12 @@ contract XARDMStaking is Ownable {
 
         if (totalxARDM == 0 || totalARDM == 0) {
             xARDM.mint(msg.sender, _amount);
-            emit Deposit(_amount,_amount);
+            emit Deposit(msg.sender,_amount,_amount);
         }
         else {
             uint256 mintAmount = (_amount * totalxARDM) / totalARDM;
             xARDM.mint(msg.sender, mintAmount);
-            emit Deposit(_amount,mintAmount);
+            emit Deposit(msg.sender,_amount,mintAmount);
         }
         ARDM.transferFrom(msg.sender, address(this), _amount);
     }
@@ -52,7 +52,7 @@ contract XARDMStaking is Ownable {
 
         xARDM.burn(_amount);
         ARDM.transfer(msg.sender, transferAmount);
-        emit Withdraw(transferAmount,_amount);
+        emit Withdraw(msg.sender,transferAmount,_amount);
     }
 
     function getXARDMAddress() view external returns (address){
@@ -80,12 +80,12 @@ contract XARDMStaking is Ownable {
 
     function toggleWithdrawPause() onlyOwner() external {
       withdrawPaused = !withdrawPaused;
-      emit WithdrawPaused(msg.sender,withdrawPaused);
+      emit WithdrawPaused(withdrawPaused);
     }
 
     function toggleDepositPause() onlyOwner() external {
       depositPaused = !depositPaused;
-      emit DepositPaused(msg.sender,depositPaused);
+      emit DepositPaused(depositPaused);
     }
 
     modifier whenDepositNotPaused() {
