@@ -50,7 +50,7 @@ contract XARDMStaking is Ownable {
 
         uint256 transferAmount = (_amount * totalARDM) / totalxARDM;
 
-        xARDM.burn(_amount);
+        xARDM.burnFrom(msg.sender,_amount);
         ARDM.transfer(msg.sender, transferAmount);
         emit Withdraw(msg.sender,transferAmount,_amount);
     }
@@ -63,7 +63,11 @@ contract XARDMStaking is Ownable {
       uint256 totalARDM = ARDM.balanceOf(address(this));
       uint256 totalxARDM = xARDM.totalSupply();
 
-      return totalxARDM / totalARDM;
+      if(totalARDM == 0 || totalxARDM == 0){
+        return 0;
+      }
+
+      return (1000000000000000000 * totalARDM) / totalxARDM;
     }
 
     function getXARDMAmountRate(uint _amount) view external returns (uint){
