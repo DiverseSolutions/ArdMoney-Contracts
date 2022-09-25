@@ -39,18 +39,75 @@ describe("xARDMStaking", function () {
     expect(await this.ardmContract.balanceOf(this.odko.address)).to.equal(parse18(500));
     expect(await this.xArdmContract.balanceOf(this.odko.address)).to.equal(parse18(500));
 
-    expect(await this.xARDMStakingContract.getXARDMRate()).to.equal(1);
+    expect(await this.xARDMStakingContract.getXARDMRate()).to.equal(parse18(1));
     expect(await this.xARDMStakingContract.getTotalLockedARDM()).to.equal(parse18(500));
+  });
 
-    // Erhes Deposit 500 ARDM to Staking Contract
-    await this.ardmContract.connect(this.erhes).approve(this.stakingAddress,parse18(500))
-    await this.xARDMStakingContract.connect(this.erhes).deposit(parse18(500))
+  it("xARDMStaking Deposit Event Fired", async function () {
+    await this.ardmContract.connect(this.odko).approve(this.stakingAddress,parse18(500))
+    await expect(this.xARDMStakingContract.connect(this.odko).deposit(parse18(500))).to.emit(this.xARDMStakingContract, "Deposit")
+  });
 
-    expect(await this.ardmContract.balanceOf(this.erhes.address)).to.equal(parse18(500));
-    expect(await this.xArdmContract.balanceOf(this.erhes.address)).to.equal(parse18(500));
+  it("xARDMStaking Withdraw Flow", async function () {
+    // Odko Deposit 500 ARDM to Staking Contract
+    await this.ardmContract.connect(this.odko).approve(this.stakingAddress,parse18(500))
+    await this.xARDMStakingContract.connect(this.odko).deposit(parse18(500))
 
-    expect(await this.xARDMStakingContract.getXARDMRate()).to.equal(1);
-    expect(await this.xARDMStakingContract.getTotalLockedARDM()).to.equal(parse18(1000));
+    await this.xArdmContract.connect(this.odko).approve(this.stakingAddress,parse18(500))
+    await this.xARDMStakingContract.connect(this.odko).withdraw(parse18(500))
+
+    expect(await this.ardmContract.balanceOf(this.odko.address)).to.equal(parse18(1000));
+    expect(await this.xArdmContract.balanceOf(this.odko.address)).to.equal(parse18(0));
+    expect(await this.xARDMStakingContract.getXARDMRate()).to.equal(0);
+    expect(await this.xARDMStakingContract.getTotalLockedARDM()).to.equal(parse18(0));
+  });
+
+  it("xARDMStaking Withdraw Event Fired", async function () {
+    await this.ardmContract.connect(this.odko).approve(this.stakingAddress,parse18(500))
+    await this.xARDMStakingContract.connect(this.odko).deposit(parse18(500))
+
+    await this.xArdmContract.connect(this.odko).approve(this.stakingAddress,parse18(500))
+    await expect(this.xARDMStakingContract.connect(this.odko).withdraw(parse18(500))).to.emit(this.xARDMStakingContract, "Withdraw")
+  });
+
+  it("Deposit Pause", async function () {
+    await expect(this.xARDMStakingContract.toggleDepositPause())
+      .to.emit(this.xARDMStakingContract, "DepositPaused")
+      .withArgs(true)
+    await this.xARDMStakingContract.toggleDepositPause();
+    await this.xARDMStakingContract.toggleDepositPause();
+
+    await this.ardmContract.connect(this.odko).approve(this.stakingAddress,parse18(500))
+    await expect(this.xARDMStakingContract.connect(this.odko).deposit(parse18(500)))
+      .to.be.revertedWith("ArdMoney: Deposit Paused")
+
+    await this.xARDMStakingContract.toggleDepositPause();
+
+    await this.ardmContract.connect(this.odko).approve(this.stakingAddress,parse18(500))
+    await expect(this.xARDMStakingContract.connect(this.odko).deposit(parse18(500)))
+      .not.to.be.reverted;
+  });
+
+  it("Withdraw Pause", async function () {
+    await expect(this.xARDMStakingContract.toggleWithdrawPause())
+      .to.emit(this.xARDMStakingContract, "WithdrawPaused")
+      .withArgs(true)
+    await this.xARDMStakingContract.toggleWithdrawPause();
+    await this.xARDMStakingContract.toggleWithdrawPause();
+
+    await this.xArdmContract.connect(this.odko).approve(this.stakingAddress,parse18(500))
+    await expect(this.xARDMStakingContract.connect(this.odko).withdraw(parse18(500)))
+      .to.emit(this.xARDMStakingContract, "Withdraw")
+      .to.be.revertedWith("ArdMoney: Withdraw Paused")
+
+    await this.xARDMStakingContract.toggleWithdrawPause();
+
+    await this.ardmContract.connect(this.odko).approve(this.stakingAddress,parse18(500))
+    await this.xARDMStakingContract.connect(this.odko).deposit(parse18(500))
+
+    await this.xArdmContract.connect(this.odko).approve(this.stakingAddress,parse18(500))
+    await expect(this.xARDMStakingContract.connect(this.odko).withdraw(parse18(500)))
+      .not.to.be.reverted;
   });
 
 });
