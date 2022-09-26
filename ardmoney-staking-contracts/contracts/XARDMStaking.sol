@@ -3,11 +3,12 @@
 pragma solidity ^0.8.4;
 
 import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "../node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 import "./XARDM.sol";
 
 contract XARDMStaking is Ownable {
+    mapping(address => uint256) private _ardmBalance;
+
     IERC20 public ARDM;
     XARDM public xARDM;
 
@@ -42,6 +43,7 @@ contract XARDMStaking is Ownable {
             emit Deposit(msg.sender,_amount,mintAmount);
         }
         ARDM.transferFrom(msg.sender, address(this), _amount);
+        _ardmBalance[msg.sender] += _amount;
     }
 
     function withdraw(uint256 _amount) whenWithdrawNotPaused external {
@@ -52,6 +54,7 @@ contract XARDMStaking is Ownable {
 
         xARDM.burnFrom(msg.sender,_amount);
         ARDM.transfer(msg.sender, transferAmount);
+        _ardmBalance[msg.sender] -= transferAmount;
         emit Withdraw(msg.sender,transferAmount,_amount);
     }
 
@@ -90,6 +93,10 @@ contract XARDMStaking is Ownable {
     function toggleDepositPause() onlyOwner() external {
       depositPaused = !depositPaused;
       emit DepositPaused(depositPaused);
+    }
+
+    function ardmBalanceOf(address account) external view returns (uint256) {
+        return _ardmBalance[account];
     }
 
     modifier whenDepositNotPaused() {

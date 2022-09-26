@@ -6,6 +6,7 @@
   "event Withdraw(address,uint256,uint256)",
   "event WithdrawPaused(bool)",
   "function ARDM() view returns (address)",
+  "function ardmBalanceOf(address) view returns (uint256)",
   "function deposit(uint256)",
   "function depositPaused() view returns (bool)",
   "function getTotalLockedARDM() view returns (uint256)",

@@ -39,6 +39,7 @@ describe("xARDMStaking", function () {
     expect(await this.ardmContract.balanceOf(this.odko.address)).to.equal(parse18(500));
     expect(await this.xArdmContract.balanceOf(this.odko.address)).to.equal(parse18(500));
 
+    expect(await this.xARDMStakingContract.ardmBalanceOf(this.odko.address)).to.equal(parse18(500));
     expect(await this.xARDMStakingContract.getXARDMRate()).to.equal(parse18(1));
     expect(await this.xARDMStakingContract.getTotalLockedARDM()).to.equal(parse18(500));
   });
@@ -56,6 +57,7 @@ describe("xARDMStaking", function () {
     await this.xArdmContract.connect(this.odko).approve(this.stakingAddress,parse18(500))
     await this.xARDMStakingContract.connect(this.odko).withdraw(parse18(500))
 
+    expect(await this.xARDMStakingContract.ardmBalanceOf(this.odko.address)).to.equal(parse18(0));
     expect(await this.ardmContract.balanceOf(this.odko.address)).to.equal(parse18(1000));
     expect(await this.xArdmContract.balanceOf(this.odko.address)).to.equal(parse18(0));
     expect(await this.xARDMStakingContract.getXARDMRate()).to.equal(0);
