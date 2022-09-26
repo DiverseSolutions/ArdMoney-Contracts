@@ -1,4 +1,5 @@
 require('dotenv').config()
+require('hardhat-abi-exporter');
 require("@nomicfoundation/hardhat-toolbox");
 
 /** @type import('hardhat/config').HardhatUserConfig */
@@ -13,6 +14,13 @@ module.exports = {
         },
       },
     ],
+  },
+  abiExporter: {
+    path: './abi',
+    runOnCompile: true,
+    clear: true,
+    spacing: 2,
+    pretty: true,
   },
   networks: {
     hardhat:{
