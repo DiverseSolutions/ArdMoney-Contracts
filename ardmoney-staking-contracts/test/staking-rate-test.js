@@ -184,7 +184,7 @@ describe("xARDMStaking", function () {
     await sendReward(this,this.dex,1000)
     await checkSupplyAndRate(this,"2600.0","1600.0","1.625")
 
-    // Erhes Withdraw by burning 500xARDM and gaining 1312 ARDM
+    // Erhes Withdraw by burning 500xARDM and gaining 812.5 ARDM
     await withdraw(this,this.erhes,500)
     await checkUserBalance(this,this.erhes,"1312.5","0.0")
     await checkSupplyAndRate(this,"1787.5","1100.0","1.625")
