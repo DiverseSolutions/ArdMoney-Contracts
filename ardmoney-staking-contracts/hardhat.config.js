@@ -43,4 +43,12 @@ module.exports = {
       }
     },
   },
+  etherscan: {
+    apiKey: {
+      mainnet: "YOUR_ETHERSCAN_API_KEY",
+      optimisticEthereum: "YOUR_OPTIMISTIC_ETHERSCAN_API_KEY",
+      arbitrumOne: "YOUR_ARBISCAN_API_KEY",
+      bsc: process.env.BSC_API_KEY,
+    }
+  }
 };
