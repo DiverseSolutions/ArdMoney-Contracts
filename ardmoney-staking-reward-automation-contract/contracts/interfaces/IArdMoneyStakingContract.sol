@@ -6,6 +6,6 @@ interface IArdMoneyStakingContract {
 
     function getXARDMRate() external view returns (uint256);
     function getXARDMAddress() external view returns (address);
-
+    function ardmBalanceOf(address account) external view returns (uint256);
     function version() external pure returns (string memory);
 }
