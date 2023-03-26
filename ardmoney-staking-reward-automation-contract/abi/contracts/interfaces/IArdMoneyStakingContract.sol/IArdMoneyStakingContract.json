@@ -1,0 +1,6 @@
+[
+  "function getTotalLockedARDM() view returns (uint256)",
+  "function getXARDMAddress() view returns (address)",
+  "function getXARDMRate() view returns (uint256)",
+  "function version() pure returns (string)"
+]

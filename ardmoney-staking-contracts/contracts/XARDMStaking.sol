@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.15;
+pragma solidity 0.8.19;
 
-import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
-import "../node_modules/@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./XARDM.sol";
 
 contract XARDMStaking is Ownable,ReentrancyGuard {
-    mapping(address => uint256) private _ardmBalance;
+    using SafeMath for uint256;
+
     mapping(address => uint256) private _userDeadline;
     uint256 public penaltyFee;
     uint256 public penaltyDeadline;
@@ -85,7 +87,6 @@ contract XARDMStaking is Ownable,ReentrancyGuard {
             emit Deposit(msg.sender, _amount, mintAmount);
         }
         ARDM.transferFrom(msg.sender, address(this), _amount);
-        _ardmBalance[msg.sender] += _amount;
 
         if (penaltyFeePaused == false) {
             _userDeadline[msg.sender] = block.timestamp;
@@ -98,7 +99,6 @@ contract XARDMStaking is Ownable,ReentrancyGuard {
         uint256 totalxARDM = xARDM.totalSupply();
 
         uint256 transferAmount = (_amount * totalARDM) / totalxARDM;
-
 
         if (
             penaltyFeePaused == false &&
@@ -116,7 +116,6 @@ contract XARDMStaking is Ownable,ReentrancyGuard {
             ARDM.transfer(msg.sender, transferAmount);
         }
 
-        _ardmBalance[msg.sender] -= transferAmount;
         emit Withdraw(msg.sender, transferAmount, _amount);
     }
 
@@ -214,11 +213,6 @@ contract XARDMStaking is Ownable,ReentrancyGuard {
     function togglePenaltyPause() external onlyOwner {
         penaltyFeePaused = !penaltyFeePaused;
         emit PenaltyPaused(penaltyFeePaused);
-    }
-
-    function ardmBalanceOf(address account) external view returns (uint256) {
-        require(account != address(0), "ADDRESS ZERO");
-        return _ardmBalance[account];
     }
 
     function userDeadlineOf(address account) external view returns (uint256) {

@@ -1,4 +1,5 @@
 require('dotenv').config()
+require('hardhat-abi-exporter');
 require("@nomicfoundation/hardhat-toolbox");
 
 /** @type import('hardhat/config').HardhatUserConfig */
